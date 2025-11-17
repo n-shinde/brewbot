@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: brewbotchallenge-api
+    env: python
+    rootDir: api
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: CORS_ORIGINS
+        value: https://your-vercel-site.vercel.app,http://localhost:3000
