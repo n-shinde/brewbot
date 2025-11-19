@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Gabarito } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import { SideNav } from "@/components/nav";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import "@/style/globals.css";
 import { Providers } from "./providers";
 
-const gabarito = Gabarito({ subsets: ["latin"], variable: "--font-gabarito" });
+// load both fonts as CSS vars
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-serif" });
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -19,8 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={cn("bg-background font-sans", gabarito.variable)}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${fraunces.variable}`}
+    >
+      <body className={cn("bg-latte text-espresso font-sans", inter.variable)}>
         <Providers>
           <div className="flex min-h-[100dvh]">
             <SideNav />

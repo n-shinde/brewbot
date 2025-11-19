@@ -1,6 +1,5 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
-import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config = {
   darkMode: ["class"],
@@ -21,7 +20,9 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-gabarito)", ...fontFamily.sans],
+        // sans: ["var(--font-gabarito)", ...fontFamily.sans],
+        sans: ["var(--font-sans)"],
+        serif: ["var(--font-serif)"],
       },
       screens: {
         phone: "370px",
