@@ -52,7 +52,7 @@ export default function LocationPicker({
 
   // debounce
   const debounced = useMemo(() => {
-    let t: any;
+    let t: ReturnType<typeof setTimeout> | undefined;
     return (fn: () => void, ms = 300) => {
       clearTimeout(t);
       t = setTimeout(fn, ms);
