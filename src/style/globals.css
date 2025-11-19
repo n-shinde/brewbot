@@ -104,6 +104,11 @@
   }
 }
 
+@layer base {
+  h1, h2, h3, h4, h5, h6 { @apply font-serif; } /* Fraunces */
+  body { @apply font-sans; } /* Inter (already on body, but safe) */
+}
+
 body {
   background:
     radial-gradient(1200px 800px at 80% -10%, hsl(30 38% 84% / 0.6) 0%, transparent 60%),
