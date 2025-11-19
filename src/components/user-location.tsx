@@ -69,8 +69,8 @@ export default function LocationPicker({
         const results = await placesAutocomplete(addrInput.trim(), sessionToken, "country:us");
         setPreds(results);
         setShowPreds(true);
-      } catch (e: any) {
-        setError(e?.message || "Autocomplete failed.");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Autocomplete failed.");
       }
     }, 250);
   }, [addrInput, debounced, sessionToken]);
@@ -113,8 +113,8 @@ export default function LocationPicker({
       setError(null);
       const { lat, lng } = await geocodeViaBackend(addr);
       onResolve({ lat, lng });
-    } catch (e: any) {
-      setError(e?.message || "Could not geocode that location.");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Could not geocode that location.");
     }
   }
 
@@ -124,8 +124,8 @@ export default function LocationPicker({
       setShowPreds(false);
       const detail = await placeDetails(place_id, sessionToken);
       onResolve({ lat: detail.lat, lng: detail.lng });
-    } catch (e: any) {
-      setError(e?.message || "Failed to resolve that place.");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to resolve that place.");
     }
   }
 

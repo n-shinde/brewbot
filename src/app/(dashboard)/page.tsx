@@ -2,11 +2,11 @@
 import { useState } from "react";
 import UploadPanel from "@/components/upload-panel";
 import NearbyCoffee from "@/components/nearby-coffee";
-import Insights from "@/components/insights";
+
 // import ChatPanel from "@/components/chat-panel";
 
 export default function DashboardPage() {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<unknown>(null);
 
   return (
     <main className="space-y-8 p-6">

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { uploadPOS, fetchNearby, getReport } from "@/lib/api";
 
 type Props = {
-  onResult: (json: any) => void;  
+  onResult: (json: unknown) => void;  
 };
 
 export default function UploadPanel({ onResult }: Props) {
@@ -33,8 +33,8 @@ export default function UploadPanel({ onResult }: Props) {
 
       setStatus("Done! ✅");
 
-    } catch (e: any) {
-      setStatus(e.message || String(e));
+    } catch (e: unknown) {
+      setStatus(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }

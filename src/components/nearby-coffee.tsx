@@ -1,4 +1,3 @@
-// src/components/nearby-coffee.tsx
 "use client";
 
 import { useState } from "react";
@@ -17,8 +16,8 @@ export default function NearbyCoffee() {
       setItems(null);
       const data = await fetchNearby({ lat, lng, radius_m: 1000, max_results: 10 });
       setItems(data.competitors);
-    } catch (e: any) {
-      setError(e?.message || "Failed to fetch nearby places.");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to fetch nearby places.");
     } finally {
       setLoading(false);
     }
