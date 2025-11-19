@@ -103,3 +103,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+body {
+  background:
+    radial-gradient(1200px 800px at 80% -10%, hsl(30 38% 84% / 0.6) 0%, transparent 60%),
+    radial-gradient(1000px 600px at -10% 110%, hsl(30 100% 96% / 0.7) 0%, transparent 60%),
+    hsl(var(--background));
+}
