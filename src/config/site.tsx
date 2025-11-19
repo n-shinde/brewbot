@@ -8,19 +8,19 @@ export type Navigation = {
 };
 
 export const siteConfig = {
-  title: "VisActor Next Template",
-  description: "Template for VisActor and Next.js",
+  title: "BrewBot",
+  description: "Optimize your sales and compete effectively with local coffee shops!",
 };
 
 export const navigations: Navigation[] = [
   {
     icon: Gauge,
-    name: "Dashboard",
+    name: "Competitor Search",
     href: "/",
   },
   {
     icon: MessagesSquare,
-    name: "Ticket",
+    name: "Sales Analysis",
     href: "/ticket",
   },
 ];

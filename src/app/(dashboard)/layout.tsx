@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="absolute bottom-0 -left-32 h-[45vh] w-[55vw] rounded-full bg-[hsl(var(--card))] opacity-40 blur-2xl" />
       </div>
 
-      <TopNav title="Dashboard" />
+      <TopNav title="BrewBot" />
       <main className="px-6 md:px-10 lg:px-16 py-8">{children}</main>
     </div>
   );
