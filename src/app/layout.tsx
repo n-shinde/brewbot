@@ -39,14 +39,33 @@
 // }
 
 import { Inter, Fraunces } from "next/font/google";
+import type { Metadata } from "next";
+import "@/style/globals.css";
+import { Providers } from "./providers";
+import { SideNav } from "@/components/nav";
+import { cn } from "@/lib/utils";
+import { siteConfig } from "@/config/site";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-serif" });
 
+export const metadata: Metadata = {
+  title: siteConfig.title,
+  description: siteConfig.description,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="font-sans bg-latte text-espresso">{children}</body>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} suppressHydrationWarning>
+      {/* Use semantic tokens so your globals.css theme applies */}
+      <body className={cn("bg-background text-foreground font-sans")}>
+        <Providers>
+          <div className="flex min-h-[100dvh]">
+            <SideNav />
+            <div className="flex-grow overflow-auto">{children}</div>
+          </div>
+        </Providers>
+      </body>
     </html>
   );
 }
