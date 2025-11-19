@@ -41,7 +41,6 @@ export type Prediction = {
   structured_formatting?: { main_text?: string; secondary_text?: string };
 };
 
-const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 export async function uploadPOS(file: File) {
@@ -59,7 +58,7 @@ export async function fetchNearby(params: {
     radius_m?: number;
     max_results?: number;
   }): Promise<{ competitors: Competitor[] }> {
-    const url = new URL("/nearby", BASE);
+    const url = new URL("/nearby", API_BASE);
     url.searchParams.set("lat", String(params.lat));
     url.searchParams.set("lng", String(params.lng));
     if (params.radius_m) url.searchParams.set("radius_m", String(params.radius_m));
@@ -72,7 +71,7 @@ export async function fetchNearby(params: {
   
   /** Geocode via your FastAPI proxy -> Google Geocoding API. */
   export async function geocodeViaBackend(address: string): Promise<LatLng> {
-    const url = new URL("/geocode", BASE);
+    const url = new URL("/geocode", API_BASE);
     url.searchParams.set("address", address);
   
     const res = await fetch(url.toString(), { cache: "no-store" });
@@ -82,7 +81,7 @@ export async function fetchNearby(params: {
   
   /** Place Autocomplete via your FastAPI proxy. */
   export async function placesAutocomplete(input: string, sessionToken: string, components = "country:us"): Promise<Prediction[]> {
-    const url = new URL("/places/autocomplete", BASE);
+    const url = new URL("/places/autocomplete", API_BASE);
     url.searchParams.set("input", input);
     url.searchParams.set("session_token", sessionToken);
     if (components) url.searchParams.set("components", components);
@@ -94,7 +93,7 @@ export async function fetchNearby(params: {
   
   /** Place Details -> lat/lng via your FastAPI proxy. */
   export async function placeDetails(placeId: string, sessionToken: string): Promise<{ lat: number; lng: number; name?: string; formatted_address?: string }> {
-    const url = new URL("/places/details", BASE);
+    const url = new URL("/places/details", API_BASE);
     url.searchParams.set("place_id", placeId);
     url.searchParams.set("session_token", sessionToken);
   

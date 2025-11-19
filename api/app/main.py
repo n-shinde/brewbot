@@ -4,7 +4,7 @@ import os
 
 app = FastAPI(title="BrewBot Challenge API", version="0.1.0")
 
-origins = os.getenv("CORS_ORIGINS", "*").split(",")
+origins = os.getenv("CORS_ORIGIN", "*").split(",")
 
 app.add_middleware(
     CORSMiddleware,
