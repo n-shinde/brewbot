@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { fetchNearby, Competitor } from "@/lib/api";
 import LocationPicker, { LatLng } from "@/components/user-location";
+import CoffeeLoader from "@/components/coffee-loader";
+
 
 export default function NearbyCoffee() {
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,8 @@ export default function NearbyCoffee() {
   return (
     <div className="space-y-6">
       <LocationPicker onResolve={searchWithLatLng} disabled={loading} />
+
+      {loading && <CoffeeLoader label="Brewing your request..." />}
 
       {error && (
         <div className="text-sm text-red-600 border border-red-300 rounded-md p-3">
