@@ -10,9 +10,9 @@ export default function DashboardPage() {
 
   return (
     <main className="space-y-8 p-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <h1 className="text-2xl font-semibold">Get started with our competitor search feature.</h1>
 
-      {/* Upload transactions, then quickly find nearby competitors */}
+      {/* Upload transactions, then quickly find nearby competitors
       <section className="space-y-4">
         <h2 className="text-xl font-medium">Upload Transactions</h2>
         <p className="text-sm text-muted-foreground">
@@ -21,13 +21,13 @@ export default function DashboardPage() {
         <UploadPanel onResult={setResult}/>
       </section>
 
-      <hr className="border-t" />
+      <hr className="border-t" /> */}
 
       {/* Location -> Nearby coffee shops */}
       <section className="space-y-4">
         <h2 className="text-xl font-medium">Find Nearby Coffee Shops</h2>
         <p className="text-sm text-muted-foreground">
-          Use your current location or enter an address to see coffee shops near you.
+          Use your current location or enter an address to see highly-rated coffee shops near you.
         </p>
         <NearbyCoffee />
       </section>

@@ -49,7 +49,7 @@ async def nearby(
 
     # Build the payload for Google Places Nearby Search
     payload = {
-        "includedTypes": ["cafe","coffee_shop"],  # Restrict to coffee shops
+        "includedTypes": ["coffee_shop"],  # Restrict to coffee shops
         "maxResultCount": max_results*2,
         "rankPreference": "DISTANCE",  # Sort results by proximity
         "locationRestriction": {
