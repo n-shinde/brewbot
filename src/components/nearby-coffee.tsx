@@ -15,7 +15,7 @@ export default function NearbyCoffee() {
       setLoading(true);
       setItems(null);
       const data = await fetchNearby({ lat, lng, radius_m: 8000, max_results: 10 });
-      console.log("nearby →", data.competitors.length, data.competitors); 
+    //   console.log("nearby →", data.competitors.length, data.competitors); 
       setItems(data.competitors);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch nearby places.");
