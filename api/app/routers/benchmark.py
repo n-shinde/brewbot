@@ -11,7 +11,7 @@ router = APIRouter()
 
 # Google Places Nearby Search endpoint (v1)
 PLACES_NEARBY = "https://places.googleapis.com/v1/places:searchNearby"
-PLACES_DETAILS = "https://places.googleapis.com/v1/places"
+PLACES_DETAILS = "https://places.googleapis.com/v1"
 
 API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
@@ -165,12 +165,12 @@ async def nearby(
                 if not resource_name:
                     return None
 
-                url = f"{PLACES_DETAILS}/{resource_name.split('/', 1)[-1]}" if resource_name.startswith("places/") else f"{PLACES_DETAILS}/{resource_name}"
+                url = f"{PLACES_DETAILS}/{resource_name}"
                 params = {"reviews_sort": "newest"}
                 r = await client.get(url, headers=details_headers, params=params)
                 if r.status_code != 200:
                     # optional: log r.text during debugging
-                    return None
+                    return {"__error": f"{r.status_code}", "__body": r.text, "__place": resource_name}
                 return r.json()
 
             tasks = [fetch_details(c.get("resource_name")) for c in competitors]
@@ -178,23 +178,25 @@ async def nearby(
 
         # 6) Attach up to 5 newest reviews (no date filtering)
         by_id = {c["id"]: c for c in competitors}
+        by_name = {c["resource_name"]: c for c in competitors if c.get("resource_name")}
+
         for det in details_list:
             if not det:
                 continue
-            pid = det.get("id")
-            base = by_id.get(pid)
+
+            rname = det.get("name")  
+            
+            base = by_name.get(rname)
             if not base:
                 continue
+
             revs = det.get("reviews") or []
-            newest = [
-                {
-                    "rating": r.get("rating"),
-                    "publish_time": r.get("publishTime"),
-                    "text": (r.get("text") or "")[:400],
-                    "author": (r.get("authorAttribution") or {}).get("displayName"),
-                }
-                for r in revs[:reviews_per_place]
-            ]
+            newest = [{
+                "rating": r.get("rating"),
+                "publish_time": r.get("publishTime"),
+                "text": (r.get("text") or "")[:400],
+                "author": (r.get("authorAttribution") or {}).get("displayName"),
+            } for r in revs[:reviews_per_place]]
             base["recent_reviews"] = newest
 
         return {"competitors": competitors}
