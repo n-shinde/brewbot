@@ -35,6 +35,13 @@ export type Competitor = {
   distance_m?: number;
 };
 
+export type Review = {
+    rating: number;
+    publish_time?: string;  
+    text?: string;
+    author?: string;       
+  };
+
 export type Prediction = {
   description: string;
   place_id: string;
@@ -51,25 +58,28 @@ export async function uploadPOS(file: File) {
   return res.json();
 }
 
-/** Nearby search via your FastAPI -> Places API (ranked by distance). */
+
+// Fetch nearby competitors + recent reviews 
 export async function fetchNearby(params: {
     lat: number;
     lng: number;
     radius_m?: number;
     max_results?: number;
+    reviews_per_place?: number; // default 5 on backend
   }): Promise<{ competitors: Competitor[] }> {
-    const url = new URL("/benchmark/nearby", API_BASE);
+    const url = new URL("/benchmark/nearby_with_reviews", API_BASE);
     url.searchParams.set("lat", String(params.lat));
     url.searchParams.set("lng", String(params.lng));
     if (params.radius_m) url.searchParams.set("radius_m", String(params.radius_m));
     if (params.max_results) url.searchParams.set("max_results", String(params.max_results));
+    if (params.reviews_per_place) url.searchParams.set("reviews_per_place", String(params.reviews_per_place));
   
     const res = await fetch(url.toString(), { cache: "no-store" });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
   }
   
-  /** Geocode via your FastAPI proxy -> Google Geocoding API. */
+  // Geocode through FastAPI proxy -> Google Geocoding 
   export async function geocodeViaBackend(address: string): Promise<LatLng> {
     const url = new URL("/find_places/geocode", API_BASE);
     url.searchParams.set("address", address);
@@ -79,7 +89,7 @@ export async function fetchNearby(params: {
     return res.json();
   }
   
-  /** Place Autocomplete via your FastAPI proxy. */
+  // Place Autocomplete 
   export async function placesAutocomplete(input: string, sessionToken: string, components = "country:us"): Promise<Prediction[]> {
     const url = new URL("/find_places/places/autocomplete", API_BASE);
     url.searchParams.set("input", input);
@@ -91,7 +101,7 @@ export async function fetchNearby(params: {
     return res.json();
   }
   
-  /** Place Details -> lat/lng via your FastAPI proxy. */
+  // Place details
   export async function placeDetails(placeId: string, sessionToken: string): Promise<{ lat: number; lng: number; name?: string; formatted_address?: string }> {
     const url = new URL("/find_places/places/details", API_BASE);
     url.searchParams.set("place_id", placeId);

@@ -1,6 +1,8 @@
 import os
 import math
 from typing import List, Dict, Any
+import asyncio
+
 
 from fastapi import APIRouter, Query, HTTPException
 import httpx
@@ -8,7 +10,9 @@ import httpx
 router = APIRouter()
 
 # Google Places Nearby Search endpoint (v1)
-PLACES_ENDPOINT = "https://places.googleapis.com/v1/places:searchNearby"
+PLACES_NEARBY = "https://places.googleapis.com/v1/places:searchNearby"
+PLACES_DETAILS = "https://places.googleapis.com/v1/places"
+
 API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
 # Simple Haversine formula for distance in meters
@@ -48,7 +52,7 @@ async def nearby(
         raise HTTPException(status_code=500, detail="Missing GOOGLE_MAPS_API_KEY")
 
     # Build the payload for Google Places Nearby Search
-    payload = {
+    nearby_payload = {
         "includedTypes": ["coffee_shop"],  # Restrict to coffee shops
         "maxResultCount": max_results*2,
         "rankPreference": "DISTANCE",  # Sort results by proximity
@@ -61,7 +65,7 @@ async def nearby(
     }
 
     # Ask only for fields you need (reduces billing cost)
-    field_mask = ",".join(
+    nearby_field_mask = ",".join(
         [
             "places.id",
             "places.displayName",
@@ -76,61 +80,115 @@ async def nearby(
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": API_KEY,
-        "X-Goog-FieldMask": field_mask,
+        "X-Goog-FieldMask": nearby_field_mask,
     }
 
     try:
+        REVIEWS_PER_PLACE = 5  # up to 5 newest reviews per place
+
         async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.post(PLACES_ENDPOINT, headers=headers, json=payload)
+            # 1) Nearby search
+            resp = await client.post(PLACES_NEARBY, headers=headers, json=nearby_payload)
+            if resp.status_code != 200:
+                # Return the Google API error message for debugging
+                raise HTTPException(status_code=resp.status_code, detail=resp.text)
 
-        if resp.status_code != 200:
-            # Return the Google API error message for debugging
-            raise HTTPException(status_code=resp.status_code, detail=resp.text)
+            data = resp.json()
+            places: List[Dict[str, Any]] = data.get("places", [])
 
-        data = resp.json()
-        places: List[Dict[str, Any]] = data.get("places", [])
+            competitors = []
+            for p in places:
+                display_name = (p.get("displayName") or {}).get("text")
+                loc = p.get("location") or {}
+                plat, plng = loc.get("latitude"), loc.get("longitude")
 
-        competitors = []
-        for p in places:
-            display_name = (p.get("displayName") or {}).get("text")
-            loc = p.get("location") or {}
-            plat, plng = loc.get("latitude"), loc.get("longitude")
+                competitors.append(
+                    {
+                        "id": p.get("id", ""),
+                        "name": display_name,
+                        "rating": p.get("rating"),
+                        "review_count": p.get("userRatingCount"),
+                        "price_level": price_to_int(p.get("priceLevel")),
+                        "formatted_address": p.get("formattedAddress"),
+                        "source": "google",
+                        "distance_m": (
+                            haversine_m(lat, lng, plat, plng)
+                            if plat is not None and plng is not None
+                            else None
+                        ),
+                    }
+                )
 
-            competitors.append(
-                {
-                    "id": p.get("id", ""),
-                    "name": display_name,
-                    "rating": p.get("rating"),
-                    "review_count": p.get("userRatingCount"),
-                    "price_level": price_to_int(p.get("priceLevel")),
-                    "formatted_address": p.get("formattedAddress"),
-                    "source": "google",
-                    "distance_m": (
-                        haversine_m(lat, lng, plat, plng)
-                        if plat is not None and plng is not None
-                        else None
-                    ),
-                }
+            # 2) Filter by rating >= 4.0
+            filtered = [c for c in competitors if (c.get("rating") or 0) >= min_rating]
+
+            # If filtering is too strict, fall back to unfiltered
+            pool = filtered if filtered else competitors
+
+            # 3) Sort by rating desc, then distance asc
+            def sort_key(c):
+                rating = c.get("rating") or 0
+                dist = c.get("distance_m")
+                dist_val = dist if dist is not None else float("inf")
+                return (-rating, dist_val)
+
+            pool.sort(key=sort_key)
+
+            # 4) Trim to max_results
+            competitors = pool[:max_results]
+
+            # 5) Fetch newest reviews for each selected place via Place Details 
+            #    Build a separate field mask for reviews
+            details_field_mask = ",".join(
+                [
+                    "id",
+                    "displayName",
+                    "reviews.text",
+                    "reviews.rating",
+                    "reviews.publishTime",
+                    "reviews.authorAttribution",
+                    "reviews.name",
+                ]
             )
+            details_headers = {
+                "X-Goog-Api-Key": API_KEY,
+                "X-Goog-FieldMask": details_field_mask,
+                "Content-Type": "application/json",
+            }
 
-        # 1) Filter by rating >= 4.0
-        filtered = [c for c in competitors if (c.get("rating") or 0) >= min_rating]
+            async def fetch_details(place_id: str):
+                if not place_id:
+                    return None
+                url = f"{PLACES_DETAILS}/{place_id}"
+                params = {"reviews_sort": "newest"}
+                r = await client.get(url, headers=details_headers, params=params)
+                if r.status_code != 200:
+                    return None
+                return r.json()
 
-        # If filtering is too strict, fall back to unfiltered
-        pool = filtered if filtered else competitors
+            tasks = [fetch_details(c["id"]) for c in competitors if c.get("id")]
+            details_list = await asyncio.gather(*tasks, return_exceptions=False)
 
-        # 2) Sort by rating desc, then distance asc
-        def sort_key(c):
-            rating = c.get("rating") or 0
-            dist = c.get("distance_m")
-            # put None distances at the end
-            dist_val = dist if dist is not None else float("inf")
-            return (-rating, dist_val)
-
-        pool.sort(key=sort_key)
-
-        # 3) Trim to max_results
-        competitors = pool[:max_results]
+        # 6) Attach up to 5 newest reviews (no date filtering)
+        by_id = {c["id"]: c for c in competitors}
+        for det in details_list:
+            if not det:
+                continue
+            pid = det.get("id")
+            base = by_id.get(pid)
+            if not base:
+                continue
+            revs = det.get("reviews") or []
+            newest = [
+                {
+                    "rating": r.get("rating"),
+                    "publish_time": r.get("publishTime"),
+                    "text": (r.get("text") or "")[:400],
+                    "author": (r.get("authorAttribution") or {}).get("displayName"),
+                }
+                for r in revs[:REVIEWS_PER_PLACE]
+            ]
+            base["recent_reviews"] = newest
 
         return {"competitors": competitors}
 
@@ -138,4 +196,64 @@ async def nearby(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Nearby search failed: {e}")
+
+    # try:
+    #     async with httpx.AsyncClient(timeout=10.0) as client:
+    #         resp = await client.post(PLACES_NEARBY, headers=headers, json=nearby_payload)
+
+    #     if resp.status_code != 200:
+    #         # Return the Google API error message for debugging
+    #         raise HTTPException(status_code=resp.status_code, detail=resp.text)
+
+    #     data = resp.json()
+    #     places: List[Dict[str, Any]] = data.get("places", [])
+
+    #     competitors = []
+    #     for p in places:
+    #         display_name = (p.get("displayName") or {}).get("text")
+    #         loc = p.get("location") or {}
+    #         plat, plng = loc.get("latitude"), loc.get("longitude")
+
+    #         competitors.append(
+    #             {
+    #                 "id": p.get("id", ""),
+    #                 "name": display_name,
+    #                 "rating": p.get("rating"),
+    #                 "review_count": p.get("userRatingCount"),
+    #                 "price_level": price_to_int(p.get("priceLevel")),
+    #                 "formatted_address": p.get("formattedAddress"),
+    #                 "source": "google",
+    #                 "distance_m": (
+    #                     haversine_m(lat, lng, plat, plng)
+    #                     if plat is not None and plng is not None
+    #                     else None
+    #                 ),
+    #             }
+    #         )
+
+    #     # 1) Filter by rating >= 4.0
+    #     filtered = [c for c in competitors if (c.get("rating") or 0) >= min_rating]
+
+    #     # If filtering is too strict, fall back to unfiltered
+    #     pool = filtered if filtered else competitors
+
+    #     # 2) Sort by rating desc, then distance asc
+    #     def sort_key(c):
+    #         rating = c.get("rating") or 0
+    #         dist = c.get("distance_m")
+    #         # put None distances at the end
+    #         dist_val = dist if dist is not None else float("inf")
+    #         return (-rating, dist_val)
+
+    #     pool.sort(key=sort_key)
+
+    #     # 3) Trim to max_results
+    #     competitors = pool[:max_results]
+
+    #     return {"competitors": competitors}
+
+    # except HTTPException:
+    #     raise
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=f"Nearby search failed: {e}")
 
