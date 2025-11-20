@@ -38,6 +38,7 @@ async def nearby(
     lng: float = Query(..., description="Longitude of center point"),
     radius_m: int = Query(8000, description="Search radius in meters"),  # Approximately 5 mile radius
     max_results: int = Query(10, description="Maximum number of results to return"),
+    min_rating: float = Query(4.0, ge=0.0, le=5.0, description="Minimum rating to include"),
 ):
     """
     Search for nearby coffee shops around the given coordinates using
@@ -48,8 +49,8 @@ async def nearby(
 
     # Build the payload for Google Places Nearby Search
     payload = {
-        "includedTypes": ["coffee_shop"],  # Restrict to coffee shops
-        "maxResultCount": max_results,
+        "includedTypes": ["cafe","coffee_shop"],  # Restrict to coffee shops
+        "maxResultCount": max_results*2,
         "rankPreference": "DISTANCE",  # Sort results by proximity
         "locationRestriction": {
             "circle": {
@@ -112,8 +113,24 @@ async def nearby(
                 }
             )
 
-        # Sort by distance again (defensive; API already returns closest first)
-        competitors.sort(key=lambda c: c.get("distance_m") or float("inf"))
+        # 1) Filter by rating >= 4.0
+        filtered = [c for c in competitors if (c.get("rating") or 0) >= min_rating]
+
+        # If filtering is too strict, fall back to unfiltered
+        pool = filtered if filtered else competitors
+
+        # 2) Sort by rating desc, then distance asc
+        def sort_key(c):
+            rating = c.get("rating") or 0
+            dist = c.get("distance_m")
+            # put None distances at the end
+            dist_val = dist if dist is not None else float("inf")
+            return (-rating, dist_val)
+
+        pool.sort(key=sort_key)
+
+        # 3) Trim to max_results
+        competitors = pool[:max_results]
 
         return {"competitors": competitors}
 
