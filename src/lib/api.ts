@@ -68,7 +68,7 @@ export async function fetchNearby(params: {
     max_results?: number;
     reviews_per_place?: number; // default 5 on backend
   }): Promise<{ competitors: Competitor[] }> {
-    const url = new URL("/benchmark/nearby_with_reviews", API_BASE);
+    const url = new URL("/benchmark/nearby", API_BASE);
     url.searchParams.set("lat", String(params.lat));
     url.searchParams.set("lng", String(params.lng));
     if (params.radius_m) url.searchParams.set("radius_m", String(params.radius_m));
