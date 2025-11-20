@@ -33,6 +33,7 @@ export type Competitor = {
   price_level?: number;
   source: string;
   distance_m?: number;
+  recent_reviews?: Review[];
 };
 
 export type Review = {

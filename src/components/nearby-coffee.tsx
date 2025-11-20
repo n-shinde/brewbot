@@ -69,22 +69,17 @@ export default function NearbyCoffee() {
                 )}
 
                 {/* ---- Reviews section ---- */}
-                {Array.isArray((c as any).recent_reviews) &&
-                  (c as any).recent_reviews.length > 0 && (
+                {Array.isArray(c.recent_reviews) &&
+                  c.recent_reviews.length > 0 && (
                     <div className="mt-3 border-t border-border pt-2 space-y-2">
                       <div className="text-sm font-semibold text-foreground">
                         Recent Reviews
                       </div>
 
                       <ul className="space-y-2">
-                        {(c as any).recent_reviews.slice(0, 5).map(
+                        {c.recent_reviews.slice(0, 5).map(
                           (
-                            r: {
-                              rating: number;
-                              publish_time?: string;
-                              text?: string;
-                              author?: string;
-                            },
+                            r,
                             i: number
                           ) => (
                             <li
