@@ -15,6 +15,7 @@ export default function NearbyCoffee() {
       setLoading(true);
       setItems(null);
       const data = await fetchNearby({ lat, lng, radius_m: 1000, max_results: 10 });
+      console.log("nearby →", data.competitors.length, data.competitors); 
       setItems(data.competitors);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch nearby places.");
@@ -34,24 +35,29 @@ export default function NearbyCoffee() {
       )}
 
       {items && (
+        <>
+        <div className="text-sm text-muted-foreground">
+        Found {items.length} coffee shop{items.length === 1 ? "" : "s"}
+        </div>
         <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {items.map((c) => (
+        {items.map((c) => (
             <li key={c.id} className="rounded-2xl border p-4 shadow-sm">
-              <div className="font-medium">{c.name}</div>
-              <div className="text-sm text-muted-foreground">
+            <div className="font-medium">{c.name}</div>
+            <div className="text-sm text-muted-foreground">
                 {c.rating ? `⭐ ${c.rating}` : "No rating"}
                 {typeof c.review_count === "number" ? ` · ${c.review_count} reviews` : ""}
-                {typeof c.price_level === "number" ? ` · $`.repeat(Math.max(1, c.price_level)) : ""}
-              </div>
-              {typeof c.distance_m === "number" && (
+                {typeof c.price_level === "number" ? ` · ${"$".repeat(Math.max(1, c.price_level))}` : ""}
+            </div>
+            {typeof c.distance_m === "number" && (
                 <div className="text-xs text-muted-foreground mt-1">
-                  {(c.distance_m).toFixed(2)} meters away
+                {(c.distance_m).toFixed(2)} meters away
                 </div>
-              )}
+            )}
             </li>
-          ))}
+        ))}
         </ul>
-      )}
+    </>
+    )}
     </div>
   );
 }
