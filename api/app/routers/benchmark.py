@@ -69,6 +69,7 @@ async def nearby(
     nearby_field_mask = ",".join(
         [
             "places.id",
+            "places.name",
             "places.displayName",
             "places.rating",
             "places.userRatingCount",
@@ -99,6 +100,8 @@ async def nearby(
 
             competitors = []
             for p in places:
+                resource_name = p.get("name")
+                place_id = p.get("id", "")
                 display_name = (p.get("displayName") or {}).get("text")
                 loc = p.get("location") or {}
                 plat, plng = loc.get("latitude"), loc.get("longitude")
@@ -106,6 +109,7 @@ async def nearby(
                 competitors.append(
                     {
                         "id": p.get("id", ""),
+                        "resource_name": resource_name or (f"places/{place_id}" if place_id else None),
                         "name": display_name,
                         "rating": p.get("rating"),
                         "review_count": p.get("userRatingCount"),
@@ -157,17 +161,19 @@ async def nearby(
                 "Content-Type": "application/json",
             }
 
-            async def fetch_details(place_id: str):
-                if not place_id:
+            async def fetch_details(resource_name: str | None):
+                if not resource_name:
                     return None
-                url = f"{PLACES_DETAILS}/{place_id}"
+
+                url = f"{PLACES_DETAILS}/{resource_name.split('/', 1)[-1]}" if resource_name.startswith("places/") else f"{PLACES_DETAILS}/{resource_name}"
                 params = {"reviews_sort": "newest"}
                 r = await client.get(url, headers=details_headers, params=params)
                 if r.status_code != 200:
+                    # optional: log r.text during debugging
                     return None
                 return r.json()
 
-            tasks = [fetch_details(c["id"]) for c in competitors if c.get("id")]
+            tasks = [fetch_details(c.get("resource_name")) for c in competitors]
             details_list = await asyncio.gather(*tasks, return_exceptions=False)
 
         # 6) Attach up to 5 newest reviews (no date filtering)
