@@ -45,7 +45,7 @@ export default function NearbyCoffee() {
               </div>
               {typeof c.distance_m === "number" && (
                 <div className="text-xs text-muted-foreground mt-1">
-                  {c.distance_m} miles away
+                  {(c.distance_m).toFixed(2)} meters away
                 </div>
               )}
             </li>

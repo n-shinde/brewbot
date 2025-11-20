@@ -27,7 +27,7 @@ export default function DashboardPage() {
       <section className="space-y-4">
         <h2 className="text-xl font-medium">Find Nearby Coffee Shops</h2>
         <p className="text-sm text-muted-foreground">
-          Use your current location or enter an address to see the 10 closest shops.
+          Use your current location or enter an address to see coffee shops near you.
         </p>
         <NearbyCoffee />
       </section>
