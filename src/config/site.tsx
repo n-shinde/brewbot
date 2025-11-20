@@ -14,12 +14,12 @@ export const siteConfig = {
 
 export const navigations: Navigation[] = [
   {
-    icon: Gauge,
+    icon: MessagesSquare,
     name: "Competitor Search",
     href: "/",
   },
   {
-    icon: MessagesSquare,
+    icon: Gauge,
     name: "Sales Analysis",
     href: "/ticket",
   },

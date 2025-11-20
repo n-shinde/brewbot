@@ -25,6 +25,13 @@
 
 export type LatLng = { lat: number; lng: number };
 
+export type Review = {
+    rating: number;
+    publish_time?: string;  
+    text?: string;
+    author?: string;       
+};
+
 export type Competitor = {
   id: string;
   name: string;
@@ -36,12 +43,6 @@ export type Competitor = {
   recent_reviews?: Review[];
 };
 
-export type Review = {
-    rating: number;
-    publish_time?: string;  
-    text?: string;
-    author?: string;       
-  };
 
 export type Prediction = {
   description: string;

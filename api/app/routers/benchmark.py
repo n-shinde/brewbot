@@ -43,6 +43,7 @@ async def nearby(
     radius_m: int = Query(8000, description="Search radius in meters"),  # Approximately 5 mile radius
     max_results: int = Query(10, description="Maximum number of results to return"),
     min_rating: float = Query(4.0, ge=0.0, le=5.0, description="Minimum rating to include"),
+    reviews_per_place: int = Query(5, ge=1, le=5, description="Number of newest reviews to fetch for each place"),
 ):
     """
     Search for nearby coffee shops around the given coordinates using
@@ -84,7 +85,7 @@ async def nearby(
     }
 
     try:
-        REVIEWS_PER_PLACE = 5  # up to 5 newest reviews per place
+        # REVIEWS_PER_PLACE = 5  # up to 5 newest reviews per place
 
         async with httpx.AsyncClient(timeout=10.0) as client:
             # 1) Nearby search
@@ -186,7 +187,7 @@ async def nearby(
                     "text": (r.get("text") or "")[:400],
                     "author": (r.get("authorAttribution") or {}).get("displayName"),
                 }
-                for r in revs[:REVIEWS_PER_PLACE]
+                for r in revs[:reviews_per_place]
             ]
             base["recent_reviews"] = newest
 
