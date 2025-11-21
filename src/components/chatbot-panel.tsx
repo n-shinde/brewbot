@@ -42,8 +42,9 @@ export default function ChatbotPanel({ context, className }: Props) {
 
   return (
     <div className={className ?? "rounded-2xl border p-4 bg-card/60"}>
-      <div className="text-xl font-medium">
+      <div className="text-xl font-serif font-semibold">
         Competitor Analysis Assistant
+        
       </div>
 
       {/* Chat history container */}
