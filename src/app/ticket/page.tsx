@@ -63,7 +63,7 @@ export default function TicketPage() {
 
   return (
     <section className="space-y-6 p-6">
-      <h1 className="text-xl font-semibold">Analyze your coffee shop's sales trends and unlock key business insights.</h1>
+      <h1 className="text-xl font-semibold">Analyze your coffee shop&apos;s sales trends and unlock key business insights.</h1>
 
       <div className="rounded-lg border p-4">
         <h2 className="text-lg font-medium">Upload your POS Sales Transactions File</h2>
@@ -127,7 +127,7 @@ export default function TicketPage() {
                   <tr key={i} className="odd:bg-white even:bg-gray-50">
                     {previewCols.map((c) => (
                       <td key={c} className="px-3 py-2 border-b align-top">
-                        {String((row as any)[c] ?? "")}
+                        {String(row[c] ?? "")}
                       </td>
                     ))}
                   </tr>
