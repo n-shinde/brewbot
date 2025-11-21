@@ -1,8 +1,7 @@
 "use client";
 
 // Serves as our location picker based on if the user grants access to their location or not.
-// src/components/user-location.tsx
-"use client";
+
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
