@@ -6,7 +6,7 @@ import {
 } from "recharts";
 import React from "react";
 
-// Minimal card wrapper so it matches your existing style
+// Minimal card wrapper 
 function ChartCard({
   title,
   subtitle,
@@ -40,13 +40,16 @@ export function MetricTile({ label, value, hint }: { label: string; value: strin
   );
 }
 
-// Colors (keep neutral so it blends with your theme)
+// Colors
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#8dd1e1", "#a4de6c", "#d0ed57", "#83a6ed", "#d885a3"];
 
-// Helper safe-getters for your analysis shape
-type AnyRecord = Record<string, any>;
+// Helper safe-getters 
+type AnyRecord = Record<string, unknown>;
 
-function asNumber(n: any, fallback = 0): number {
+const isRecord = (v: unknown): v is AnyRecord =>
+  !!v && typeof v === "object";
+
+function asNumber(n: unknown, fallback = 0): number {
   const x = Number(n);
   return Number.isFinite(x) ? x : fallback;
 }
@@ -81,33 +84,38 @@ function buildDatasets(analysis: AnyRecord) {
   // Fees
   const totalFees = asNumber(analysis["Total Payment Fees"]);
 
-  // Top/Bottom Items (top used for chart)
-  const topItems = Array.isArray(analysis["Top Items by Revenue"])
-    ? analysis["Top Items by Revenue"].map((r: AnyRecord) => ({
-        name: String(r["Item Name"] ?? r["Item"] ?? r["name"] ?? "Item"),
-        revenue: asNumber(r["sum"] ?? r["Net Sales"] ?? r["revenue"]),
-        count: asNumber(r["count"] ?? r["qty"] ?? r["quantity"]),
-      }))
+  const topItemsSource = Array.isArray(analysis["Top Items by Revenue"])
+    ? (analysis["Top Items by Revenue"] as unknown[]).filter(isRecord)
     : [];
+  
+  const topItems = topItemsSource.map((r) => ({
+      name: String(r["Item Name"] ?? r["Item"] ?? r["name"] ?? "Item"),
+      revenue: asNumber(r["sum"] ?? r["Net Sales"] ?? r["revenue"]),
+      count: asNumber(r["count"] ?? r["qty"] ?? r["quantity"]),
+  }));
 
   // Category Mix
-  const categoryMix = Array.isArray(analysis["Category Sales Mix"])
-    ? analysis["Category Sales Mix"].map((r: AnyRecord) => ({
-        category: String(r["Category"] ?? r["category"] ?? r["name"] ?? "Category"),
-        value: asNumber(r["Net Sales"] ?? r["sum"] ?? r["value"]),
-      }))
+  const categoryMixSource = Array.isArray(analysis["Category Sales Mix"])
+    ? (analysis["Category Sales Mix"] as unknown[]).filter(isRecord)
     : [];
+  
+  const categoryMix = categoryMixSource.map((r) => ({
+      category: String(r["Category"] ?? r["category"] ?? r["name"] ?? "Category"),
+      value: asNumber(r["Net Sales"] ?? r["sum"] ?? r["value"]),
+  }));
 
   // Size Preference (stacked: pick top N items by volume)
-  const sizePrefRaw: Array<any> = Array.isArray(analysis["Size Preference"])
-    ? analysis["Size Preference"]
+  const sizePrefRaw: AnyRecord[] = Array.isArray(analysis["Size Preference"])
+    ? (analysis["Size Preference"] as unknown[]).filter(isRecord)
     : [];
+
   // Normalize: { item, size, count }
   const sizeRows = sizePrefRaw.map((r) => ({
     item: String(r["Item Name"] ?? r["Item"] ?? r["item"] ?? "Item"),
     size: String(r["Size"] ?? r["size"] ?? "N/A"),
     count: asNumber(r["count"] ?? r["qty"] ?? r["quantity"], 0),
   }));
+
   // aggregate per item-size
   const aggMap = new Map<string, Record<string, number>>();
   for (const row of sizeRows) {
@@ -116,6 +124,7 @@ function buildDatasets(analysis: AnyRecord) {
     cur[row.size] = (cur[row.size] || 0) + row.count;
     aggMap.set(key, cur);
   }
+  
   // pick top 5 items by total count
   const totals = Array.from(aggMap.entries()).map(([item, sizes]) => ({
     item,
