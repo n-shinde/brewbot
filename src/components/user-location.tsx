@@ -5,7 +5,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  geocodeViaBackend,
   placesAutocomplete,
   placeDetails,
   Prediction,
@@ -13,11 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 
 export type LatLng = { lat: number; lng: number };
-
-function buildAddress(city: string, state: string, zip: string) {
-  const parts = [city.trim(), state.trim(), zip.trim()].filter(Boolean);
-  return parts.join(", ");
-}
 
 function useSessionToken() {
     const ref = useRef<string | null>(null);
@@ -37,11 +31,6 @@ export default function LocationPicker({
   const sessionToken = useSessionToken();
 
   const [error, setError] = useState<string | null>(null);
-
-  // City/State/ZIP
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zip, setZip] = useState("");
 
   // Autocomplete
   const [addrInput, setAddrInput] = useState("");
@@ -102,20 +91,6 @@ export default function LocationPicker({
     );
   }
 
-  async function useCityStateZip() {
-    const addr = buildAddress(city, state, zip);
-    if (!addr) {
-      setError("Please enter at least City and State (ZIP optional).");
-      return;
-    }
-    try {
-      setError(null);
-      const { lat, lng } = await geocodeViaBackend(addr);
-      onResolve({ lat, lng });
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Could not geocode that location.");
-    }
-  }
 
   async function selectPrediction(place_id: string, description: string) {
     try {
@@ -139,43 +114,21 @@ export default function LocationPicker({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
-        <input
-          className="sm:col-span-2 rounded-md border px-3 py-2 text-sm"
-          placeholder="City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          disabled={disabled}
-        />
-        <input
-          className="sm:col-span-1 rounded-md border px-3 py-2 text-sm"
-          placeholder="State (e.g., CA)"
-          value={state}
-          onChange={(e) => setState(e.target.value.toUpperCase())}
-          maxLength={2}
-          disabled={disabled}
-        />
-        <input
-          className="sm:col-span-1 rounded-md border px-3 py-2 text-sm"
-          placeholder="ZIP (optional)"
-          value={zip}
-          onChange={(e) => setZip(e.target.value)}
-          inputMode="numeric"
-          pattern="\d*"
-          disabled={disabled}
-        />
-        <Button className="sm:col-span-1" onClick={useCityStateZip} disabled={disabled}>
-          Search
-        </Button>
-      </div>
 
+      {/* Single address autocomplete input */}
       <div ref={boxRef} className="relative">
         <input
           className="w-full rounded-md border px-3 py-2 text-sm"
-          placeholder="Or type a full address"
+          placeholder="Enter your coffee shop's full address"
           value={addrInput}
           onChange={(e) => setAddrInput(e.target.value)}
           onFocus={() => preds.length && setShowPreds(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && preds[0]) {
+              e.preventDefault();
+              selectPrediction(preds[0].place_id, preds[0].description);
+            }
+          }}
           disabled={disabled}
         />
         {showPreds && preds.length > 0 && (

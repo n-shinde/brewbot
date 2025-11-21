@@ -85,16 +85,6 @@ export async function fetchNearby(params: {
     return res.json();
   }
   
-  // Geocode through FastAPI proxy -> Google Geocoding 
-  export async function geocodeViaBackend(address: string): Promise<LatLng> {
-    const url = new URL("/find_places/geocode", API_BASE);
-    url.searchParams.set("address", address);
-  
-    const res = await fetch(url.toString(), { cache: "no-store" });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-  }
-  
   // Place Autocomplete 
   export async function placesAutocomplete(input: string, sessionToken: string, components = "country:us"): Promise<Prediction[]> {
     const url = new URL("/find_places/places/autocomplete", API_BASE);

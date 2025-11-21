@@ -1,95 +1,115 @@
 brewbotchallenge/
-├─ public/
-│  ├─ avatar.png
-│  ├─ thumbnail.png
-│  └─ visactor.svg
-├─ src/
-│  ├─ app/
-│  │  ├─ (dashboard)/
-│  │  │  ├─ layout.tsx
-│  │  │  └─ page.tsx
-│  │  ├─ ticket/
-│  │  │  ├─ layout.tsx
-│  │  │  └─ page.tsx
-│  │  ├─ favicon.ico
-│  │  ├─ layout.tsx
-│  │  └─ providers.tsx
-│  ├─ components/
-│  │  ├─ chart-blocks/
-│  │  │  ├─ charts/
-│  │  │  │  ├─ average-tickets-created/
-│  │  │  │  │  ├─ components/
-│  │  │  │  │  │  ├─ date-range-picker.tsx
-│  │  │  │  │  │  └─ metric-card.tsx
-│  │  │  │  │  ├─ chart.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  ├─ conversions/
-│  │  │  │  │  ├─ chart.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  ├─ customer-satisfication/
-│  │  │  │  │  ├─ components/
-│  │  │  │  │  │  └─ linear-progress.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  ├─ metrics/
-│  │  │  │  │  ├─ components/
-│  │  │  │  │  │  └─ metric-card.tsx
-│  │  │  │  │  └─ index.tsx
-│  │  │  │  └─ ticket-by-channels/
-│  │  │  │     ├─ chart.tsx
-│  │  │  │     └─ index.tsx
-│  │  │  ├─ components/
-│  │  │  │  └─ chart-title.tsx
-│  │  │  └─ index.tsx
-│  │  ├─ nav/
-│  │  │  ├─ side-nav/
-│  │  │  │  ├─ components/
-│  │  │  │  │  ├─ navigation.tsx
-│  │  │  │  │  ├─ user.tsx
-│  │  │  │  │  └─ visactor.tsx
-│  │  │  │  └─ index.tsx
-│  │  │  ├─ index.tsx
-│  │  │  └─ top-nav.tsx
-│  │  ├─ providers/
-│  │  │  ├─ chart-theme-provider.tsx
-│  │  │  └─ mode-theme-provider.tsx
-│  │  ├─ ui/
-│  │  │  ├─ button.tsx
-│  │  │  ├─ calendar.tsx
-│  │  │  ├─ dropdown-menu.tsx
-│  │  │  └─ popover.tsx
-│  │  ├─ container.tsx
-│  │  ├─ icons.tsx
-│  │  ├─ primitives.ts
-│  │  └─ theme-toggle.tsx
-│  ├─ config/
-│  │  ├─ chart-theme.ts
-│  │  └─ site.tsx
-│  ├─ data/
-│  │  ├─ average-tickets-created.ts
-│  │  ├─ convertions.ts
-│  │  ├─ customer-satisfication.ts
-│  │  ├─ metrics.ts
-│  │  └─ ticket-by-channels.ts
-│  ├─ hooks/
-│  │  └─ use-hydration.tsx
-│  ├─ lib/
-│  │  ├─ atoms.ts
-│  │  └─ utils.ts
-│  ├─ style/
-│  │  ├─ dot-matrix.css
-│  │  └─ globals.css
-│  └─ types/
-│     └─ types.ts
-├─ .env.example
-├─ .eslintrc.json
-├─ .gitignore
-├─ .prettierrc.cjs
-├─ components.json
-├─ LICENSE
-├─ next.config.mjs
-├─ package.json
-├─ pnpm-lock.yaml
-├─ postcss.config.mjs
-├─ README.md
-├─ tailwind.config.ts
-└─ tsconfig.json
+├── api
+│   ├── app
+│   │   ├── routers
+│   │   │   ├── analyze.py
+│   │   │   ├── benchmark.py
+│   │   │   ├── competitor_chat.py
+│   │   │   ├── find_places.py
+│   │   │   └── ingest.py
+│   │   └── main.py
+│   ├── .env.example
+│   ├── render.yaml
+│   └── requirements.txt
+├── public
+│   ├── avatar.jpg
+│   ├── thumbnail.png
+│   └── visactor.svg
+├── src
+│   ├── app
+│   │   ├── (dashboard)
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── ticket
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── layout.tsx
+│   │   └── providers.tsx
+│   ├── components
+│   │   ├── chart-blocks
+│   │   │   ├── charts
+│   │   │   │   ├── average-tickets-created
+│   │   │   │   │   ├── components
+│   │   │   │   │   │   ├── date-range-picker.tsx
+│   │   │   │   │   │   └── metric-card.tsx
+│   │   │   │   │   ├── chart.tsx
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── conversions
+│   │   │   │   │   ├── chart.tsx
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── customer-satisfication
+│   │   │   │   │   ├── components
+│   │   │   │   │   │   └── linear-progress.tsx
+│   │   │   │   │   └── index.tsx
+│   │   │   │   ├── metrics
+│   │   │   │   │   ├── components
+│   │   │   │   │   │   └── metric-card.tsx
+│   │   │   │   │   └── index.tsx
+│   │   │   │   └── ticket-by-channels
+│   │   │   │       ├── chart.tsx
+│   │   │   │       └── index.tsx
+│   │   │   ├── components
+│   │   │   │   └── chart-title.tsx
+│   │   │   └── index.tsx
+│   │   ├── nav
+│   │   │   ├── side-nav
+│   │   │   │   ├── components
+│   │   │   │   │   ├── navigation.tsx
+│   │   │   │   │   ├── user.tsx
+│   │   │   │   │   └── visactor.tsx
+│   │   │   │   └── index.tsx
+│   │   │   ├── index.tsx
+│   │   │   └── top-nav.tsx
+│   │   ├── providers
+│   │   │   ├── chart-theme-provider.tsx
+│   │   │   └── mode-theme-provider.tsx
+│   │   ├── ui
+│   │   │   ├── button.tsx
+│   │   │   ├── calendar.tsx
+│   │   │   ├── dropdown-menu.tsx
+│   │   │   └── popover.tsx
+│   │   ├── chatbot-panel.tsx
+│   │   ├── coffee-loader.tsx
+│   │   ├── container.tsx
+│   │   ├── icons.tsx
+│   │   ├── insights.tsx
+│   │   ├── nearby-coffee.tsx
+│   │   ├── primitives.ts
+│   │   ├── theme-toggle.tsx
+│   │   ├── upload-panel.tsx
+│   │   └── user-location.tsx
+│   ├── config
+│   │   ├── chart-theme.ts
+│   │   └── site.tsx
+│   ├── data
+│   │   ├── average-tickets-created.ts
+│   │   ├── convertions.ts
+│   │   ├── customer-satisfication.ts
+│   │   ├── metrics.ts
+│   │   └── ticket-by-channels.ts
+│   ├── hooks
+│   │   └── use-hydration.tsx
+│   ├── lib
+│   │   ├── api.ts
+│   │   ├── atoms.ts
+│   │   └── utils.ts
+│   ├── style
+│   │   ├── dot-matrix.css
+│   │   └── globals.css
+│   └── types
+│       └── types.ts
+├── .env.example
+├── .eslintrc.json
+├── .gitignore
+├── .prettierrc.cjs
+├── LICENSE
+├── README.md
+├── components.json
+├── file_tree.txt
+├── next.config.mjs
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── tailwind.config.ts
+└── tsconfig.json
