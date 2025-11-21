@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { PosInsightsCharts } from "@/components/chart-blocks/pos/pos-insights"; 
+
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -157,16 +159,11 @@ export default function TicketPage() {
           {/* ADDED: Run Analysis button + results */}
           <div className="mt-6">
             <Button onClick={runAnalysis}> Gather insights 📈 🍵 </Button>
+            
+            {/* Graphs + charts */}
             {analysis && (
-              <div className="mt-4 space-y-4 text-sm">
-                {Object.entries(analysis).map(([key, value]) => (
-                  <div key={key}>
-                    <h4 className="font-medium">{key}</h4>
-                    <pre className="bg-gray-50 p-2 rounded-md overflow-x-auto text-xs">
-                      {JSON.stringify(value, null, 2)}
-                    </pre>
-                  </div>
-                ))}
+              <div className="mt-4">
+                <PosInsightsCharts analysis={analysis} />
               </div>
             )}
           </div>
