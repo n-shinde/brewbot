@@ -19,7 +19,7 @@ def health():
     return {"ok": True}
 
 # mount routers
-from app.routers import benchmark, find_places, competitor_chat, ingest
+from app.routers import benchmark, find_places, competitor_chat, ingest, analyze
 
 # app.include_router(ingest.router, prefix="/ingest", tags=["ingest"])
 app.include_router(benchmark.router, prefix="/benchmark", tags=["benchmark"])
@@ -27,3 +27,4 @@ app.include_router(benchmark.router, prefix="/benchmark", tags=["benchmark"])
 app.include_router(find_places.router, prefix="/find_places", tags=["find_places"])
 app.include_router(competitor_chat.router, prefix="/ai", tags=["ai"])
 app.include_router(ingest.router)
+app.include_router(analyze.router)

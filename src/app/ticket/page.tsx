@@ -21,6 +21,7 @@ export default function TicketPage() {
   const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
   const [result, setResult] = useState<PosIngestResponse | null>(null);
+  const [analysis, setAnalysis] = useState<Record<string, any> | null>(null);
 
   const previewCols = useMemo<string[]>(
     () => (result?.preview?.[0] ? Object.keys(result.preview[0]) : result?.cols ?? []),
@@ -36,6 +37,7 @@ export default function TicketPage() {
     setStatus("uploading");
     setMessage("");
     setResult(null);
+    setAnalysis(null);
 
     try {
       const fd = new FormData();
@@ -60,6 +62,22 @@ export default function TicketPage() {
       setMessage(err instanceof Error ? err.message : "Upload failed.");
     }
   }
+
+  async function runAnalysis() { // ADDED
+    try {
+      setMessage(""); // keep status area clean
+      const res = await fetch(`${API_BASE}/analyze/pos`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.detail || `Analysis failed (${res.status})`);
+      }
+      const data = await res.json();
+      setAnalysis(data.insights ?? data); // support either {insights:{}} or flat
+      setMessage("Analysis complete!");
+    } catch (err: unknown) {
+      setMessage(err instanceof Error ? err.message : "Failed to analyze file.");
+    }
+  } 
 
   return (
     <section className="space-y-6 p-6">
@@ -134,6 +152,23 @@ export default function TicketPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* ADDED: Run Analysis button + results */}
+          <div className="mt-6">
+            <Button onClick={runAnalysis}>Gather insights 📈 🍵 </Button>
+            {analysis && (
+              <div className="mt-4 space-y-4 text-sm">
+                {Object.entries(analysis).map(([key, value]) => (
+                  <div key={key}>
+                    <h4 className="font-medium">{key}</h4>
+                    <pre className="bg-gray-50 p-2 rounded-md overflow-x-auto text-xs">
+                      {JSON.stringify(value, null, 2)}
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
