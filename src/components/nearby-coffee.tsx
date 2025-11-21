@@ -4,9 +4,13 @@ import { useState } from "react";
 import { fetchNearby, Competitor } from "@/lib/api";
 import LocationPicker, { LatLng } from "@/components/user-location";
 import CoffeeLoader from "@/components/coffee-loader";
+import ChatbotPanel from "@/components/chatbot-panel";
 
+type Props = {
+    onResults?: (items: Competitor[]) => void; 
+};
 
-export default function NearbyCoffee() {
+export default function NearbyCoffee({ onResults }: Props = {}) {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Competitor[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +23,7 @@ export default function NearbyCoffee() {
       const data = await fetchNearby({ lat, lng, radius_m: 8000, max_results: 10, reviews_per_place:5});
     //   console.log("nearby →", data.competitors.length, data.competitors); 
       setItems(data.competitors);
+      onResults?.(data.competitors);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch nearby places.");
     } finally {

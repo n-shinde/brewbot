@@ -22,7 +22,7 @@ export default function DashboardPage() {
         <p className="text-sm text-muted-foreground">
           Use your current location or enter an address to see highly-rated coffee shops near you.
         </p>
-        <NearbyCoffee />
+        <NearbyCoffee onResults={setShops} />
       </section>
 
       <hr className="border-t" /> 
