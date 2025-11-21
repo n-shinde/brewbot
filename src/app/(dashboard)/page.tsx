@@ -2,26 +2,19 @@
 import { useState } from "react";
 import UploadPanel from "@/components/upload-panel";
 import NearbyCoffee from "@/components/nearby-coffee";
+import ChatbotPanel from "@/components/chatbot-panel";
+import type { Competitor } from "@/lib/api";
+
 
 // import ChatPanel from "@/components/chat-panel";
 
 export default function DashboardPage() {
   const [result, setResult] = useState<unknown>(null);
+  const [shops, setShops] = useState<Competitor[] | null>(null);
 
   return (
     <main className="space-y-8 p-6">
       <h1 className="text-2xl font-semibold">Get started with our competitor search feature.</h1>
-
-      {/* Upload transactions, then quickly find nearby competitors
-      <section className="space-y-4">
-        <h2 className="text-xl font-medium">Upload Transactions</h2>
-        <p className="text-sm text-muted-foreground">
-          Upload your transactions file, then search for nearby coffee shops around a location.
-        </p>
-        <UploadPanel onResult={setResult}/>
-      </section>
-
-      <hr className="border-t" /> */}
 
       {/* Location -> Nearby coffee shops */}
       <section className="space-y-4">
@@ -31,6 +24,29 @@ export default function DashboardPage() {
         </p>
         <NearbyCoffee />
       </section>
+
+      <hr className="border-t" /> 
+
+      {/* Chatbot panel */}
+      {shops && shops.length > 0 && (
+        <section className="space-y-4">
+          <ChatbotPanel
+            className="mt-6"
+            context={{
+              shops: shops.map((c) => ({
+                id: c.id,
+                name: c.name,
+                address: (c as any).formatted_address,
+                googleMapsUri: (c as any).google_maps_uri,
+                rating: c.rating,
+                reviews: c.review_count,
+              })),
+            }}
+          />
+        </section>
+      )}
+
+
     </main>
   );
 }

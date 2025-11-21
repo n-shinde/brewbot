@@ -24,6 +24,8 @@
 // src/lib/api.ts
 
 export type LatLng = { lat: number; lng: number };
+export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
+
 
 export type Review = {
     rating: number;
@@ -116,6 +118,21 @@ export async function fetchNearby(params: {
 
 export async function getReport() {
   const res = await fetch(`${API_BASE}/analyze/report`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function chatWithGemini(payload: {
+  messages: ChatMessage[];
+  context?: unknown;
+}): Promise<{ content: string }> {
+  const url = new URL("/ai/chat", API_BASE);
+  const res = await fetch(url.toString(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify(payload),
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
