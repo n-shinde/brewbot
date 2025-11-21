@@ -62,7 +62,10 @@ export default function ChatbotPanel({ context, className }: Props) {
                     : "bg-muted text-foreground text-left"
                 }`}
               >
-                <div className="prose prose-sm max-w-none">
+                <div className={`prose prose-sm text-foreground mt-1
+                        prose-headings:mt-4 prose-headings:mb-2
+                        prose-p:my-3 prose-li:my-2 prose-ul:my-3 prose-ol:my-3 prose-strong:text-foreground
+                        max-w-none`}>
                   <ReactMarkdown>
                     {m.content}
                   </ReactMarkdown>
@@ -83,7 +86,7 @@ export default function ChatbotPanel({ context, className }: Props) {
       <div className="mt-3 flex gap-2">
         <input
           className="flex-1 rounded-md border px-3 py-2 text-sm"
-          placeholder="Tell me about your coffee shop or ask about a competitor..."
+          placeholder="Ask me anything! (Ex: Suggest winter seasonal menu items that customers in the Bay Area would like.)"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
