@@ -42,6 +42,23 @@ export function MetricTile({ label, value, hint }: { label: string; value: strin
 
 // Colors
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#8dd1e1", "#a4de6c", "#d0ed57", "#83a6ed", "#d885a3"];
+const TEAL = "#66d9cc"; // light teal for bars
+
+// [ADD] Specific colors for size series
+const SIZE_COLORS: Record<string, string> = {
+  "12 oz": "#98ee90", // light green
+  "16 oz": "#c8b6ff", // light purple
+};
+
+// Currency formatters
+const currencyTick = (v: number) =>
+  `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+
+const currencyTooltip: import("recharts").TooltipProps<number, string>["formatter"] = (value) => {
+  const n = Number(value);
+  return [`$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`];
+};
+
 
 // Helper safe-getters 
 type AnyRecord = Record<string, unknown>;
@@ -124,7 +141,7 @@ function buildDatasets(analysis: AnyRecord) {
     cur[row.size] = (cur[row.size] || 0) + row.count;
     aggMap.set(key, cur);
   }
-  
+
   // pick top 5 items by total count
   const totals = Array.from(aggMap.entries()).map(([item, sizes]) => ({
     item,
@@ -190,9 +207,9 @@ export function PosInsightsCharts({ analysis }: { analysis: AnyRecord }) {
             <BarChart data={grossNetData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="label" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" />
+              <YAxis tickFormatter={currencyTick} />
+              <Tooltip formatter={currencyTooltip} />
+              <Bar dataKey="value" fill={TEAL} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -218,7 +235,7 @@ export function PosInsightsCharts({ analysis }: { analysis: AnyRecord }) {
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip formatter={currencyTooltip} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
@@ -238,9 +255,9 @@ export function PosInsightsCharts({ analysis }: { analysis: AnyRecord }) {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" interval={0} angle={-30} textAnchor="end" height={60} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="revenue" />
+              <YAxis tickFormatter={currencyTick} />
+              <Tooltip formatter={currencyTooltip} />
+              <Bar dataKey="revenue" fill={TEAL} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -279,17 +296,18 @@ export function PosInsightsCharts({ analysis }: { analysis: AnyRecord }) {
           subtitle="Helps with cup stock & pricing."
         >
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stackedData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
+            {/* More bottom space so legend doesn’t overlap labels */}
+            <BarChart data={stackedData} margin={{ top: 8, right: 16, left: 0, bottom: 72 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="item" interval={0} angle={-30} textAnchor="end" height={60} />
               <YAxis />
               <Tooltip />
               {sizeKeys.map((k, i) => (
-                <Bar key={k} dataKey={k} stackId="sizes">
-                  <Cell fill={COLORS[i % COLORS.length]} />
-                </Bar>
+                // Give each series (size) a color; 12 oz and 16 oz get specific colors
+                <Bar key={k} dataKey={k} stackId="sizes" fill={SIZE_COLORS[k] ?? COLORS[i % COLORS.length]} />
               ))}
-              <Legend />
+              {/* Move legend to bottom and center */}
+              <Legend verticalAlign="bottom" align="center" layout="horizontal" height={36} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
