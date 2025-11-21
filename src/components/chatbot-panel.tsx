@@ -5,7 +5,7 @@ import { chatWithGemini, type ChatMessage } from "@/lib/api";
 
 type Props = {
   // optional: pass nearby shops so the bot can reference their names/addresses
-  context?: any;
+  context?: unknown;
   className?: string;
 };
 
@@ -29,10 +29,10 @@ export default function ChatbotPanel({ context, className }: Props) {
     try {
       const resp = await chatWithGemini({ messages: next, context });
       setMessages([...next, { role: "assistant", content: resp.content }]);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMessages([
         ...next,
-        { role: "assistant", content: e?.message || "Something went wrong." },
+        { role: "assistant", content: e instanceof Error ? e.message : "Something went wrong." },
       ]);
     } finally {
       setLoading(false);
@@ -41,7 +41,7 @@ export default function ChatbotPanel({ context, className }: Props) {
 
   return (
     <div className={className ?? "rounded-2xl border p-4 bg-card/60"}>
-      <div className="text-sm font-semibold mb-2">Review Assistant</div>
+      <div className="text-sm font-semibold mb-2">Competitor Analysis Assistant</div>
 
       <div className="space-y-2 max-h-[50vh] overflow-auto border rounded-md p-3 bg-background">
         {messages.map((m, i) => (
@@ -52,13 +52,13 @@ export default function ChatbotPanel({ context, className }: Props) {
             </span>
           </div>
         ))}
-        {loading && <div className="text-xs text-muted-foreground">Thinking…</div>}
+        {loading && <div className="text-xs text-muted-foreground">Thinking... 🤔 💭 </div>}
       </div>
 
       <div className="mt-3 flex gap-2">
         <input
           className="flex-1 rounded-md border px-3 py-2 text-sm"
-          placeholder="Paste a few review excerpts or ask about a shop…"
+          placeholder="Tell me more about your own coffee shop and how you'd like to optimize your business. Or ask about a competitor!"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}

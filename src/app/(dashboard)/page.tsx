@@ -36,8 +36,8 @@ export default function DashboardPage() {
               shops: shops.map((c) => ({
                 id: c.id,
                 name: c.name,
-                address: (c as any).formatted_address,
-                googleMapsUri: (c as any).google_maps_uri,
+                address: c.formatted_address,
+                googleMapsUri: c.google_maps_uri,
                 rating: c.rating,
                 reviews: c.review_count,
               })),

@@ -43,6 +43,8 @@ export type Competitor = {
   source: string;
   distance_m?: number;
   recent_reviews?: Review[];
+  formatted_address?: string;
+  google_maps_uri?: string;
 };
 
 
