@@ -21,7 +21,7 @@ export default function TicketPage() {
   const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
   const [result, setResult] = useState<PosIngestResponse | null>(null);
-  const [analysis, setAnalysis] = useState<Record<string, any> | null>(null);
+  const [analysis, setAnalysis] = useState<Record<string, unknown> | null>(null);
 
   const previewCols = useMemo<string[]>(
     () => (result?.preview?.[0] ? Object.keys(result.preview[0]) : result?.cols ?? []),
@@ -156,7 +156,7 @@ export default function TicketPage() {
 
           {/* ADDED: Run Analysis button + results */}
           <div className="mt-6">
-            <Button onClick={runAnalysis}>Gather insights 📈 🍵 </Button>
+            <Button onClick={runAnalysis}> Gather insights 📈 🍵 </Button>
             {analysis && (
               <div className="mt-4 space-y-4 text-sm">
                 {Object.entries(analysis).map(([key, value]) => (
