@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { chatWithGemini, type ChatMessage } from "@/lib/api";
+import ReactMarkdown from "react-markdown";
 
 type Props = {
   // optional: pass nearby shops so the bot can reference their names/addresses
@@ -41,24 +42,48 @@ export default function ChatbotPanel({ context, className }: Props) {
 
   return (
     <div className={className ?? "rounded-2xl border p-4 bg-card/60"}>
-      <div className="text-sm font-semibold mb-2">Competitor Analysis Assistant</div>
-
-      <div className="space-y-2 max-h-[50vh] overflow-auto border rounded-md p-3 bg-background">
-        {messages.map((m, i) => (
-          <div key={i} className="text-sm">
-            <span className="font-medium">{m.role === "user" ? "You" : "Assistant"}:</span>{" "}
-            <span className={m.role === "assistant" ? "text-foreground" : "text-foreground"}>
-              {m.content}
-            </span>
-          </div>
-        ))}
-        {loading && <div className="text-xs text-muted-foreground">Thinking... 🤔 💭 </div>}
+      <div className="text-xl font-medium">
+        Competitor Analysis Assistant
       </div>
 
+      {/* Chat history container */}
+      <div className="space-y-3 border rounded-md p-3 bg-background max-h-[50vh] overflow-y-auto">
+        {messages.map((m, i) => {
+          const isUser = m.role === "user";
+          return (
+            <div
+              key={i}
+              className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                  isUser
+                    ? "bg-espresso text-crema text-right"
+                    : "bg-muted text-foreground text-left"
+                }`}
+              >
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown>
+                    {m.content}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {loading && (
+          <div className="text-xs text-muted-foreground text-center">
+            Thinking... 🤔 💭
+          </div>
+        )}
+      </div>
+
+      {/* Input area */}
       <div className="mt-3 flex gap-2">
         <input
           className="flex-1 rounded-md border px-3 py-2 text-sm"
-          placeholder="Tell me more about your own coffee shop and how you'd like to optimize your business. Or ask about a competitor!"
+          placeholder="Tell me about your coffee shop or ask about a competitor..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
